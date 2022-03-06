@@ -1,0 +1,33 @@
+{
+  "root": "packages/minecrat-protocol-wrapper",
+  "sourceRoot": "packages/minecrat-protocol-wrapper/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/minecrat-protocol-wrapper",
+        "main": "packages/minecrat-protocol-wrapper/src/index.ts",
+        "tsConfig": "packages/minecrat-protocol-wrapper/tsconfig.lib.json",
+        "assets": ["packages/minecrat-protocol-wrapper/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/minecrat-protocol-wrapper/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/minecrat-protocol-wrapper"],
+      "options": {
+        "jestConfig": "packages/minecrat-protocol-wrapper/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
