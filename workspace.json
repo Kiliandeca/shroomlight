@@ -1,6 +1,6 @@
 {
   "version": 2,
   "projects": {
-    "minecrat-protocol-wrapper": "packages/minecrat-protocol-wrapper"
+    "minecraft-protocol-wrapper": "packages/minecraft-protocol-wrapper"
   }
 }

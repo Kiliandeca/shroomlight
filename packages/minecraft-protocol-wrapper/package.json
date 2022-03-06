@@ -1,0 +1,7 @@
+{
+  "name": "@shroomlight/minecraft-protocol-wrapper",
+  "version": "0.0.1",
+  "scripts": {
+    "generate": "ts-node src/lib/sourcesGenerator.ts"
+  }
+}

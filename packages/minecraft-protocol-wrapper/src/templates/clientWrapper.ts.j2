@@ -1,0 +1,67 @@
+import EventEmitter from "events";
+import { Client } from "minecraft-protocol";
+import {
+  toClient,
+  toServer,
+} from './packets'
+
+class ClientWrapper extends EventEmitter {
+
+  client: Client
+
+  constructor(client: Client) {
+    super()
+    this.client = client;
+    this.client.on("packet", (data, packetMeta) => {
+      this.emit(packetMeta.name, data, packetMeta)
+    })
+  }
+}
+
+interface ServerSideClientEvents {
+  {%- for packet in packets.toServer %}
+  '{{ packet.name }}': (data: toServer.{{ getParamsInterfaceName(packet) }}) => void;
+  {%- endfor %}
+}
+
+export declare interface ServerSideClientWrapper {
+  on<U extends keyof ServerSideClientEvents>(
+    event: U, listener: ServerSideClientEvents[U]
+  ): this;
+}
+
+export class ServerSideClientWrapper extends ClientWrapper {
+  constructor(client: Client) {
+    super(client);
+  }
+
+  {%- for packet in packets.toClient %}
+  {{ camelcase(packet.name) }}(params: toClient.{{ getParamsInterfaceName(packet) }}) {
+    this.client.write('{{ packet.name }}', params)
+  }
+  {%- endfor %}
+}
+
+interface ClientSideClientEvents {
+  {%- for packet in packets.toClient %}
+  '{{ packet.name }}': (data: toClient.{{ getParamsInterfaceName(packet) }}) => void;
+  {%- endfor %}
+}
+
+export declare interface ClientSideClientWrapper {
+  on<U extends keyof ClientSideClientEvents>(
+    event: U, listener: ClientSideClientEvents[U]
+  ): this;
+}
+
+export class ClientSideClientWrapper extends ClientWrapper {
+  constructor(client: Client) {
+    super(client);
+  }
+
+  {%- for packet in packets.toServer %}
+  {{ camelcase(packet.name) }}(params: toServer.{{ getParamsInterfaceName(packet) }}) {
+    this.client.write('{{ packet.name }}', params)
+  }
+  {%- endfor %}
+}

@@ -1,11 +1,24 @@
 {
-  "root": "packages/minecrat-protocol-wrapper",
-  "sourceRoot": "packages/minecrat-protocol-wrapper/src",
+  "root": "packages/minecraft-protocol-wrapper",
+  "sourceRoot": "packages/minecraft-protocol-wrapper/src",
   "projectType": "library",
   "targets": {
+    "generate": {
+      "executor": "@nrwl/workspace:run-script",
+      "outputs": ["src/generated"],
+      "options": {
+        "script": "generate"
+      }
+    },
     "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
+      "dependsOn": [
+        {
+          "target": "generate",
+          "projects": "self"
+        }
+      ],
       "options": {
         "outputPath": "dist/packages/minecrat-protocol-wrapper",
         "main": "packages/minecrat-protocol-wrapper/src/index.ts",

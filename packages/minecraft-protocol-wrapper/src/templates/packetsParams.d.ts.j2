@@ -1,0 +1,19 @@
+export namespace toClient {
+
+{%- for packet in packets.toClient %}
+interface {{ getParamsInterfaceName(packet) }} {
+{{ getPacketParamsInterfaceContent(packet) }}
+}
+{%- endfor %}
+
+}
+
+export namespace toServer {
+
+{%- for packet in packets.toServer %}
+interface {{ getParamsInterfaceName(packet) }} {
+{{ getPacketParamsInterfaceContent(packet) }}
+}
+{%- endfor %}
+
+}
