@@ -1,5 +1,5 @@
 import * as camelcase from "camelcase"
-import { readdir, readdirSync, writeFileSync } from "fs"
+import { writeFileSync } from "fs"
 import { parseProtocol } from "./protocolParsers"
 
 import { render } from "nunjucks"
