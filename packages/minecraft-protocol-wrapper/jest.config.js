@@ -1,5 +1,5 @@
 module.exports = {
-  displayName: 'minecrat-protocol-wrapper',
+  displayName: 'minecraft-protocol-wrapper',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -10,5 +10,5 @@ module.exports = {
     '^.+\\.[tj]sx?$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  coverageDirectory: '../../coverage/packages/minecrat-protocol-wrapper',
+  coverageDirectory: '../../coverage/packages/minecraft-protocol-wrapper',
 };

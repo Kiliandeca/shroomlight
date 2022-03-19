@@ -1,0 +1,6 @@
+{
+  "name": "@shroomlight/server",
+  "scripts": {
+    "serve": "ts-node-dev --require tsconfig-paths/register -P tsconfig.app.json src/main.ts"
+  }
+}

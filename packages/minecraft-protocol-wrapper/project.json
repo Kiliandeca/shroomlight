@@ -20,24 +20,24 @@
         }
       ],
       "options": {
-        "outputPath": "dist/packages/minecrat-protocol-wrapper",
-        "main": "packages/minecrat-protocol-wrapper/src/index.ts",
-        "tsConfig": "packages/minecrat-protocol-wrapper/tsconfig.lib.json",
-        "assets": ["packages/minecrat-protocol-wrapper/*.md"]
+        "outputPath": "dist/packages/minecraft-protocol-wrapper",
+        "main": "packages/minecraft-protocol-wrapper/src/index.ts",
+        "tsConfig": "packages/minecraft-protocol-wrapper/tsconfig.lib.json",
+        "assets": ["packages/minecraft-protocol-wrapper/*.md"]
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["packages/minecrat-protocol-wrapper/**/*.ts"]
+        "lintFilePatterns": ["packages/minecraft-protocol-wrapper/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/packages/minecrat-protocol-wrapper"],
+      "outputs": ["coverage/packages/minecraft-protocol-wrapper"],
       "options": {
-        "jestConfig": "packages/minecrat-protocol-wrapper/jest.config.js",
+        "jestConfig": "packages/minecraft-protocol-wrapper/jest.config.js",
         "passWithNoTests": true
       }
     }
