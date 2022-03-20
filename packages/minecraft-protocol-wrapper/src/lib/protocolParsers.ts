@@ -42,6 +42,7 @@ const parsersMap = new Map<string, Function>()
   .set('container', parseContainer)
   .set('mapper', parseMapper)
   .set('switch', parseSwitch)
+  .set('array', parseArray)
 
 function parseContainer(containers: Container){
   const result: {[key: string]: any} = {}  
@@ -64,6 +65,11 @@ function parseSwitch(switchValue: Switch) {
   return switchValue
 }
 
+function parseArray(arrayValue: ProtodefArray) {
+  arrayValue.type = parseType(arrayValue.type)
+  return arrayValue
+}
+
 type Protocol = Namespace
 type Namespace = {
   types?: {[key:string]: Type | "native"},
@@ -72,11 +78,12 @@ type Namespace = {
 
 type Type = string | Datatypes | [name: string, options: any]
 
-type DatatypeLiterals = 'container' | 'mapper' | 'switch'
+type DatatypeLiterals = 'container' | 'mapper' | 'switch' | 'array'
 type Datatypes = 
   ['container', Container] |
   ['mapper', Mapper] |
-  ['switch', Switch]
+  ['switch', Switch] |
+  ['array', ProtodefArray]
 
 type Container = [{
   name: string,
@@ -96,4 +103,9 @@ type Switch = {
     [key:string]: any
   }
   default: string
+}
+
+type ProtodefArray = {
+  countType: string
+  type: Type
 }

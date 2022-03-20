@@ -67,6 +67,8 @@ function getPacketParamsInterfaceContent(packet: Packet): string {
     } else if (type.fields) {
       const optional = type.default == 'void' ? '?' : ''
       interfaceString += `  ${field}${optional}: any\n`
+    } else if (type.countType) {
+      interfaceString += `  ${field}: any[]\n`
     } else {
       interfaceString += `  ${field}: any\n`
     }

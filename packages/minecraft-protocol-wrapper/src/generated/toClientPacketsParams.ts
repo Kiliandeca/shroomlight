@@ -94,7 +94,7 @@ export interface AnimationParams {
 
 }
 export interface StatisticsParams {
-  entries: any
+  entries: any[]
 
 }
 export interface AcknowledgePlayerDiggingParams {
@@ -153,11 +153,11 @@ export interface TabCompleteParams {
   transactionId: protocolType.varint
   start: protocolType.varint
   length: protocolType.varint
-  matches: any
+  matches: any[]
 
 }
 export interface DeclareCommandsParams {
-  nodes: any
+  nodes: any[]
   rootIndex: protocolType.varint
 
 }
@@ -173,7 +173,7 @@ export interface CloseWindowParams {
 }
 export interface WindowItemsParams {
   windowId: protocolType.u8
-  items: any
+  items: any[]
 
 }
 export interface CraftProgressBarParams {
@@ -222,7 +222,7 @@ export interface ExplosionParams {
   y: protocolType.f32
   z: protocolType.f32
   radius: protocolType.f32
-  affectedBlockOffsets: any
+  affectedBlockOffsets: any[]
   playerMotionX: protocolType.f32
   playerMotionY: protocolType.f32
   playerMotionZ: protocolType.f32
@@ -256,7 +256,7 @@ export interface MapChunkParams {
   heightmaps: protocolType.nbt
   biomes: any
   chunkData: any
-  blockEntities: any
+  blockEntities: any[]
 
 }
 export interface WorldEventParams {
@@ -296,7 +296,7 @@ export interface LoginParams {
   isHardcore: protocolType.bool
   gameMode: protocolType.u8
   previousGameMode: protocolType.u8
-  worldNames: any
+  worldNames: any[]
   dimensionCodec: protocolType.nbt
   dimension: protocolType.nbt
   worldName: protocolType.stringType
@@ -314,7 +314,7 @@ export interface MapParams {
   scale: protocolType.i8
   trackingPosition: protocolType.bool
   locked: protocolType.bool
-  icons: any
+  icons: any[]
   columns: protocolType.i8
   rows: any
   x: any
@@ -324,7 +324,7 @@ export interface MapParams {
 }
 export interface TradeListParams {
   windowId: protocolType.varint
-  trades: any
+  trades: any[]
   villagerLevel: protocolType.varint
   experience: protocolType.varint
   isRegularVillager: protocolType.bool
@@ -403,7 +403,7 @@ export interface CombatEventParams {
 }
 export interface PlayerInfoParams {
   action: protocolType.varint
-  data: any
+  data: any[]
 
 }
 export interface FacePlayerParams {
@@ -436,12 +436,12 @@ export interface UnlockRecipesParams {
   filteringBlastFurnace: protocolType.bool
   smokerBookOpen: protocolType.bool
   filteringSmoker: protocolType.bool
-  recipes1: any
+  recipes1: any[]
   recipes2?: any
 
 }
 export interface EntityDestroyParams {
-  entityIds: any
+  entityIds: any[]
 
 }
 export interface RemoveEntityEffectParams {
@@ -473,7 +473,7 @@ export interface EntityHeadRotationParams {
 export interface MultiBlockChangeParams {
   chunkCoordinates: any
   notTrustEdges: protocolType.bool
-  records: any
+  records: any[]
 
 }
 export interface SelectAdvancementTabParams {
@@ -562,7 +562,7 @@ export interface ScoreboardObjectiveParams {
 }
 export interface SetPassengersParams {
   entityId: protocolType.varint
-  passengers: any
+  passengers: any[]
 
 }
 export interface TeamsParams {
@@ -650,14 +650,14 @@ export interface EntityTeleportParams {
 }
 export interface AdvancementsParams {
   reset: protocolType.bool
-  advancementMapping: any
-  identifiers: any
-  progressMapping: any
+  advancementMapping: any[]
+  identifiers: any[]
+  progressMapping: any[]
 
 }
 export interface EntityUpdateAttributesParams {
   entityId: protocolType.varint
-  properties: any
+  properties: any[]
 
 }
 export interface EntityEffectParams {
@@ -669,7 +669,7 @@ export interface EntityEffectParams {
 
 }
 export interface DeclareRecipesParams {
-  recipes: any
+  recipes: any[]
 
 }
 export interface TagsParams {
