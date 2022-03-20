@@ -1,19 +1,7 @@
-export namespace toClient {
+import * as protocolType from "../lib/types"
 
-{%- for packet in packets.toClient %}
-interface {{ getParamsInterfaceName(packet) }} {
+{%- for packet in packets %}
+export interface {{ getParamsInterfaceName(packet) }} {
 {{ getPacketParamsInterfaceContent(packet) }}
 }
 {%- endfor %}
-
-}
-
-export namespace toServer {
-
-{%- for packet in packets.toServer %}
-interface {{ getParamsInterfaceName(packet) }} {
-{{ getPacketParamsInterfaceContent(packet) }}
-}
-{%- endfor %}
-
-}

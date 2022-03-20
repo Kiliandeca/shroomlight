@@ -52,11 +52,18 @@ states.forEach(state => {
   packets.toServer.push(...getPackets(parsedProtocol[state].toServer.types))
 })
 
+function getAllowedTypeName(typeName: string) {
+  if (typeName == 'void' || typeName == 'string' || typeName == 'switch') {
+    return `${typeName}Type`
+  }
+  return typeName
+}
+
 function getPacketParamsInterfaceContent(packet: Packet): string {
   let interfaceString = ''
   for (const [field, type] of Object.entries(packet.params)) {
     if (typeof type == 'string') {
-      interfaceString += `  ${field}: ${type}\n`
+      interfaceString += `  ${field}: protocolType.${getAllowedTypeName(type)}\n`
     } else if (type.fields) {
       const optional = type.default == 'void' ? '?' : ''
       interfaceString += `  ${field}${optional}: any\n`
@@ -77,8 +84,15 @@ const indexTypesDefinition = render("src/templates/index.d.ts.j2", {
   getParamsInterfaceName,
 })
 
-const packetsParamsTypeDefinition = render("src/templates/packetsParams.d.ts.j2", {
-  packets,
+const toClientPacketsParamsTypeDefinition = render("src/templates/packetsParams.d.ts.j2", {
+  packets: packets.toClient,
+  camelcase,
+  getParamsInterfaceName,
+  getPacketParamsInterfaceContent
+})
+
+const toServerPacketsParamsTypeDefinition = render("src/templates/packetsParams.d.ts.j2", {
+  packets: packets.toServer,
   camelcase,
   getParamsInterfaceName,
   getPacketParamsInterfaceContent
@@ -91,5 +105,6 @@ const clientWrapperCode = render("src/templates/clientWrapper.ts.j2", {
 })
 
 writeFileSync('src/generated/index.d.ts', indexTypesDefinition)
-writeFileSync('src/generated/packets.d.ts', packetsParamsTypeDefinition)
+writeFileSync('src/generated/toClientPacketsParams.ts', toClientPacketsParamsTypeDefinition)
+writeFileSync('src/generated/toServerPacketsParams.ts', toServerPacketsParamsTypeDefinition)
 writeFileSync('src/generated/clientWrapper.ts', clientWrapperCode)

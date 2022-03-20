@@ -1,9 +1,7 @@
 import { EventEmitter} from 'events';
 import { Client } from "minecraft-protocol";
-import {
-  toClient,
-  toServer,
-} from './packets'
+import * as toClient from './toClientPacketsParams'
+import * as toServer from './toServerPacketsParams'
 
 class ClientWrapper extends EventEmitter {
 

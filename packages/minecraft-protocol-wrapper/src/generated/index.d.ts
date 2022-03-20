@@ -4,10 +4,8 @@ import { EventEmitter } from 'events';
 import { Socket } from 'net'
 import * as Stream from 'stream'
 import { Agent } from 'http'
-import {
-  toClient,
-  toServer,
-} from './packets'
+import * as toClient from './toClientPacketsParams'
+import * as toServer from './toServerPacketsParams'
 
 type PromiseLike = Promise<void> | void
 
