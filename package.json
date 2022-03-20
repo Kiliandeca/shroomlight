@@ -10,6 +10,7 @@
     "nunjucks": "^3.2.3",
     "prismarine-chunk": "^1.30.0",
     "tslib": "^2.0.0",
+    "uuid": "^8.3.2",
     "vec3": "^0.1.7"
   },
   "devDependencies": {
@@ -24,6 +25,7 @@
     "@types/jest": "27.0.2",
     "@types/node": "^17.0.21",
     "@types/nunjucks": "^3.2.1",
+    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "~5.10.0",
     "@typescript-eslint/parser": "~5.10.0",
     "eslint": "~8.7.0",
