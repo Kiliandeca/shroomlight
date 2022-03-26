@@ -3,7 +3,7 @@ import { createServer, PacketMeta, Server, ServerClient } from "minecraft-protoc
 import { World } from "./world";
 import { Client } from "./client";
 import { Vec3 } from "vec3";
-import { Entity } from "./entity";
+import { Entity } from "./entities/Entity";
 import { setTimeout } from "timers/promises";
 
 export class GameServer {
@@ -13,7 +13,7 @@ export class GameServer {
   version: string;
 
   nextId = 0
-  entities = new Set<Entity>()
+  entities = new Map<number, Entity>()
   clients = new Set<Client>()
   
   constructor(version: string){
@@ -24,7 +24,7 @@ export class GameServer {
       host: '0.0.0.0',
       port: 25565,
       version,
-      validateChannelProtocol: false
+      validateChannelProtocol: false,
     })
 
     this.protocolServer.on("connection", (client) => {
@@ -50,9 +50,14 @@ export class GameServer {
       this.sendEntitiesPosition()
 
       const took = Date.now() - start
-      if (took > 0) {
+      if (took > 5) {
         console.log(`Tick ${tickCount} took ${took}`);
 
+      }
+
+      const sheep = this.entities.get(6)
+      if(sheep){
+        sheep.location.position.x-=0.1
       }
       
       await setTimeout(Math.max(0, 50 - took))
@@ -66,14 +71,12 @@ export class GameServer {
         if (entity.uuid == client.entity.uuid) {
           return;
         }
-        console.log(entity);
-        
 
         client.protocolClientWrapper.entityTeleport({
           entityId: entity.id,
-          ...entity.position,
-          yaw: entity.yaw,
-          pitch: entity.pitch,
+          ...entity.location.position,
+          yaw: entity.location.yaw,
+          pitch: entity.location.pitch,
           onGround: true
         })
 
@@ -85,12 +88,12 @@ export class GameServer {
     console.log("PlayerLogin");
     
     rawClient.on("packet", (data: any, meta: PacketMeta) => {
-      if (!["keep_alive", "position", "position_look"].includes(meta.name)) {
+      if (!["keep_alive", "position", "position_look", "look"].includes(meta.name)) {
         console.log(meta.name, data);
       }
     })
 
-    const spawnpoint = new Vec3(0, 90, 0)
+    const spawnpoint = new Vec3(0, 65, 0)
     const playerEntity = new Entity({
       id: this.nextId++,
       position: spawnpoint,
@@ -102,9 +105,9 @@ export class GameServer {
     const client = new Client(this.version, wrappedClient, playerEntity);
 
     this.clients.add(client)
-    this.entities.add(playerEntity)
+    this.entities.set(playerEntity.id, playerEntity)
     wrappedClient.client.socket.on('end', () => {
-      this.entities.delete(playerEntity)
+      this.entities.delete(playerEntity.id)
       this.clients.delete(client)
     })
 
@@ -134,7 +137,16 @@ export class GameServer {
       })
     })
 
+    const sheep = new Entity({
+      id: 6,
+      position: spawnpoint,
+      yaw: 0,
+      pitch: 0,
+    })
+    sheep.type = 69
 
+    wrappedClient.spawnEntityLiving(sheep.createSpawnMessage())
+    this.entities.set(sheep.id, sheep)
 
     wrappedClient.on("chat", (data) => {
       console.log(data.message);
@@ -152,6 +164,21 @@ export class GameServer {
     client.sendChunk({
       x: 0,
       z: 0,
+      chunk
+    })
+    client.sendChunk({
+      x: -1,
+      z: 0,
+      chunk
+    })
+    client.sendChunk({
+      x: 0,
+      z: -1,
+      chunk
+    })
+    client.sendChunk({
+      x: -1,
+      z: -1,
       chunk
     })
   }

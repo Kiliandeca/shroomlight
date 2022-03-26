@@ -2,7 +2,8 @@ import { ServerSideClientWrapper, toServer } from "@shroomlight/minecraft-protoc
 import { PCChunk } from "prismarine-chunk";
 import minecraft_data from 'minecraft-data'
 import { Vec3 } from "vec3";
-import { Entity } from "./entity";
+import { Entity } from "./entities/Entity";
+import { angleToDegree } from "./utils";
 
 
 export class Client{
@@ -22,11 +23,14 @@ export class Client{
     this.sendLogin()
     this.sendPosition()
 
-    this.protocolClientWrapper.on('position', (position) => this.entity.updatePosition(position))
-    this.protocolClientWrapper.on('look', (look) => this.entity.updateLook(look))
+    this.protocolClientWrapper.on('look', (look) => this.entity.updateLocation({pitch: angleToDegree(look.pitch), yaw: angleToDegree(look.yaw)}))
+    this.protocolClientWrapper.on('position', (positionMessage) => {
+      const position = new Vec3(positionMessage.x, positionMessage.y, positionMessage.z)
+      this.entity.updateLocation({position})
+    })
     this.protocolClientWrapper.on('position_look', (positionLook) => {
-      this.entity.updatePosition(positionLook)
-      this.entity.updateLook(positionLook)
+      const position = new Vec3(positionLook.x, positionLook.y, positionLook.z)
+      this.entity.updateLocation({position, pitch: angleToDegree(positionLook.pitch), yaw: angleToDegree(positionLook.yaw)})
     })
   }
 
@@ -71,9 +75,9 @@ export class Client{
 
   sendPosition(){
     this.protocolClientWrapper.position({
-      ...this.entity.position,
-      yaw: this.entity.yaw,
-      pitch: this.entity.pitch,
+      ...this.entity.location.position,
+      yaw: this.entity.location.yaw,
+      pitch: this.entity.location.pitch,
       flags: 0x00,
     } as any)
   }
