@@ -1,7 +1,16 @@
-import { toServer } from "@shroomlight/minecraft-protocol-wrapper";
+import { toClient } from "@shroomlight/minecraft-protocol-wrapper";
+import { v4 } from "uuid"
 import { Vec3 } from "vec3";
-import * as uuid from "uuid"
 import { Location } from "../Location";
+
+export interface EntityOptions {
+  id: number
+  uuid?: string
+  type: number
+  position: Vec3
+  yaw: number
+  pitch: number
+}
 
 export class Entity {
 
@@ -10,9 +19,10 @@ export class Entity {
   location: Location
   type: number
 
-  constructor({id, position, yaw, pitch}) {
-    this.uuid = uuid.v4()
+  constructor({id, uuid, type, position, yaw, pitch}: EntityOptions) {
+    this.uuid = uuid ? uuid : v4()
     this.id = id
+    this.type = type
     this.location = new Location({position, yaw, pitch})
   }
 
@@ -20,7 +30,7 @@ export class Entity {
     this.location.update(newLocation)
   }
 
-  createSpawnMessage(){
+  getSpawnMessage(): toClient.SpawnEntityLivingParams | toClient.NamedEntitySpawnParams {
     return {
       type: this.type,
       entityId: this.id,
@@ -28,7 +38,7 @@ export class Entity {
       velocityX: 0,
       velocityY: 0,
       velocityZ: 10000,
-      entityUUID: "uuid",
+      entityUUID: this.uuid,
       headPitch: 0,
     }
   }

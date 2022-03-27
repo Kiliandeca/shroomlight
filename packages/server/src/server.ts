@@ -1,24 +1,24 @@
-import { ServerSideClientWrapper } from "@shroomlight/minecraft-protocol-wrapper";
+import { ServerSideClientWrapper, toClient } from "@shroomlight/minecraft-protocol-wrapper";
 import { createServer, PacketMeta, Server, ServerClient } from "minecraft-protocol"
 import { World } from "./world";
 import { Client } from "./client";
 import { Vec3 } from "vec3";
 import { Entity } from "./entities/Entity";
 import { setTimeout } from "timers/promises";
+import { PlayerEntity } from "./entities/PlayerEntity";
+import { data, version } from "./data";
 
 export class GameServer {
 
   world: World;
   protocolServer: Server;
-  version: string;
 
-  nextId = 0
+  nextId = 1
   entities = new Map<number, Entity>()
-  clients = new Set<Client>()
-  
-  constructor(version: string){
-    this.version = version
-    this.world = new World(version)
+  players = new Set<PlayerEntity>()
+
+  constructor(){
+    this.world = new World()
     this.protocolServer = createServer({
       'online-mode': true,
       host: '0.0.0.0',
@@ -38,6 +38,15 @@ export class GameServer {
       console.log("Server listening");
     })
 
+    const sheep = new Entity({
+      id: this.nextId++,
+      type: data.entitiesByName.sheep.id,
+      position: new Vec3(2, 65, 2),
+      yaw: 0,
+      pitch: 0,
+    })
+    this.entities.set(sheep.id, sheep)
+
     this.gameLoop()
   }
 
@@ -55,29 +64,29 @@ export class GameServer {
 
       }
 
-      const sheep = this.entities.get(6)
-      if(sheep){
-        sheep.location.position.x-=0.1
-      }
-      
       await setTimeout(Math.max(0, 50 - took))
     }
   }
 
   sendEntitiesPosition(){
-    this.clients.forEach(client => {
+    this.players.forEach(player => {
       this.entities.forEach(entity => {
 
-        if (entity.uuid == client.entity.uuid) {
+        if (entity.id == player.id) {
           return;
         }
 
-        client.protocolClientWrapper.entityTeleport({
+        player.client.protocolClientWrapper.entityTeleport({
           entityId: entity.id,
           ...entity.location.position,
           yaw: entity.location.yaw,
           pitch: entity.location.pitch,
           onGround: true
+        })
+
+        player.client.protocolClientWrapper.entityHeadRotation({
+          entityId: entity.id,
+          headYaw: entity.location.yaw
         })
 
       })
@@ -93,60 +102,37 @@ export class GameServer {
       }
     })
 
+    const wrappedClient = new ServerSideClientWrapper(rawClient)
+    const client = new Client(wrappedClient);
     const spawnpoint = new Vec3(0, 65, 0)
-    const playerEntity = new Entity({
+    const player = new PlayerEntity({
+      client,
       id: this.nextId++,
+      type: data.entitiesByName.player.id,
       position: spawnpoint,
       yaw: 0,
       pitch: 0
     })
 
-    const wrappedClient = new ServerSideClientWrapper(rawClient)
-    const client = new Client(this.version, wrappedClient, playerEntity);
 
-    this.clients.add(client)
-    this.entities.set(playerEntity.id, playerEntity)
+    this.players.add(player)
+    this.entities.set(player.id, player)
     wrappedClient.client.socket.on('end', () => {
-      this.entities.delete(playerEntity.id)
-      this.clients.delete(client)
+      this.entities.delete(player.id)
+      this.players.delete(player)
     })
 
+    // Send entities to player
     this.entities.forEach(e => {
-      if (e.uuid == client.entity.uuid) {
-        return;
-      }
-      wrappedClient.playerInfo({
-        action: 0,
-        data: [{
-          UUID: e.uuid,
-          name: "test",
-          properties: '',
-          gamemode: 1,
-          ping: 1,
-        }]
-      })
-  
-      wrappedClient.namedEntitySpawn({
-        entityId: e.id,
-        x: 2,
-        y: 90,
-        z: 2,
-        playerUUID: e.uuid,
-        pitch: 0,
-        yaw: 0
-      })
+      if (e.id == player.id) return
+      client.spawnEntity(e)
     })
 
-    const sheep = new Entity({
-      id: 6,
-      position: spawnpoint,
-      yaw: 0,
-      pitch: 0,
+    // Send new player to others players
+    this.players.forEach(p => {
+      if (p.id == player.id) return
+      p.client.spawnEntity(player)
     })
-    sheep.type = 69
-
-    wrappedClient.spawnEntityLiving(sheep.createSpawnMessage())
-    this.entities.set(sheep.id, sheep)
 
     wrappedClient.on("chat", (data) => {
       console.log(data.message);
@@ -161,22 +147,22 @@ export class GameServer {
 
     const chunk = this.world.getPlaceHolderChunk()
 
-    client.sendChunk({
+    player.client.sendChunk({
       x: 0,
       z: 0,
       chunk
     })
-    client.sendChunk({
+    player.client.sendChunk({
       x: -1,
       z: 0,
       chunk
     })
-    client.sendChunk({
+    player.client.sendChunk({
       x: 0,
       z: -1,
       chunk
     })
-    client.sendChunk({
+    player.client.sendChunk({
       x: -1,
       z: -1,
       chunk

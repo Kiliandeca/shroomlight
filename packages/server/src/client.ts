@@ -1,50 +1,49 @@
-import { ServerSideClientWrapper, toServer } from "@shroomlight/minecraft-protocol-wrapper";
+import { ServerSideClientWrapper, toClient } from "@shroomlight/minecraft-protocol-wrapper";
 import { PCChunk } from "prismarine-chunk";
-import minecraft_data from 'minecraft-data'
 import { Vec3 } from "vec3";
-import { Entity } from "./entities/Entity";
+import { PlayerEntity } from "./entities/PlayerEntity";
 import { angleToDegree } from "./utils";
+import { data } from "./data";
+import { Entity } from "./entities/Entity";
 
 
 export class Client{
 
-  version: string;
   protocolClientWrapper: ServerSideClientWrapper
 
-  entity: Entity;
+  playerEntity: PlayerEntity;
 
-  constructor(version: string, protocolClientWrapper: ServerSideClientWrapper, entity: Entity) {
-    this.version = version  
+  constructor(protocolClientWrapper: ServerSideClientWrapper) {
     this.protocolClientWrapper = protocolClientWrapper
+  }
 
-    // Todo save and extract player data
-    this.entity = entity
-
+  finalizeLogin(){
     this.sendLogin()
     this.sendPosition()
+    this.listenPositionUpdate()
+  }
 
-    this.protocolClientWrapper.on('look', (look) => this.entity.updateLocation({pitch: angleToDegree(look.pitch), yaw: angleToDegree(look.yaw)}))
+  listenPositionUpdate(){
+    this.protocolClientWrapper.on('look', (look) => this.playerEntity.updateLocation({pitch: angleToDegree(look.pitch), yaw: angleToDegree(look.yaw)}))
     this.protocolClientWrapper.on('position', (positionMessage) => {
       const position = new Vec3(positionMessage.x, positionMessage.y, positionMessage.z)
-      this.entity.updateLocation({position})
+      this.playerEntity.updateLocation({position})
     })
     this.protocolClientWrapper.on('position_look', (positionLook) => {
       const position = new Vec3(positionLook.x, positionLook.y, positionLook.z)
-      this.entity.updateLocation({position, pitch: angleToDegree(positionLook.pitch), yaw: angleToDegree(positionLook.yaw)})
+      this.playerEntity.updateLocation({position, pitch: angleToDegree(positionLook.pitch), yaw: angleToDegree(positionLook.yaw)})
     })
   }
 
   sendLogin() {
-    const mcData = minecraft_data(this.version)
-    const loginPacket = (mcData as any).loginPacket
     this.protocolClientWrapper.login({
       entityId: this.protocolClientWrapper.client.uuid,
       isHardcore: false,
       gameMode: 0,
       previousGameMode: 2,
-      worldNames: loginPacket.worldNames,
-      dimensionCodec: loginPacket.dimensionCodec,
-      dimension: loginPacket.dimension,
+      worldNames: data.loginPacket.worldNames,
+      dimensionCodec: data.loginPacket.dimensionCodec,
+      dimension: data.loginPacket.dimension,
       worldName: 'minecraft:overworld',
       hashedSeed: [0, 0],
       maxPlayers: 20,
@@ -75,10 +74,40 @@ export class Client{
 
   sendPosition(){
     this.protocolClientWrapper.position({
-      ...this.entity.location.position,
-      yaw: this.entity.location.yaw,
-      pitch: this.entity.location.pitch,
+      ...this.playerEntity.location.position,
+      yaw: this.playerEntity.location.yaw,
+      pitch: this.playerEntity.location.pitch,
       flags: 0x00,
     } as any)
   }
+
+  spawnEntity(entity: Entity){
+    const spawnMessage = entity.getSpawnMessage()
+    if (isSpawnEntityLivingParams(spawnMessage)) {
+      this.protocolClientWrapper.spawnEntityLiving(spawnMessage)
+    } else if(isNamedEntitySpawnParams(spawnMessage)) {
+      // Entity is a player
+      this.protocolClientWrapper.playerInfo({
+        action: 0,
+        data: [{
+          UUID: entity.uuid,
+          name: 'test',
+          properties:[],
+          gamemode: 1,
+          ping: 1,
+        }]
+      })
+      this.protocolClientWrapper.namedEntitySpawn(spawnMessage)
+    }
+  }
+}
+
+type SpawnEntityGenericParams = toClient.SpawnEntityLivingParams | toClient.NamedEntitySpawnParams | toClient.SpawnEntityParams
+
+function isSpawnEntityLivingParams(params: SpawnEntityGenericParams): params is toClient.SpawnEntityLivingParams {
+  return (params as toClient.SpawnEntityLivingParams).headPitch !== undefined
+}
+
+function isNamedEntitySpawnParams(params: SpawnEntityGenericParams): params is toClient.NamedEntitySpawnParams {
+  return (params as toClient.NamedEntitySpawnParams).playerUUID !== undefined
 }
