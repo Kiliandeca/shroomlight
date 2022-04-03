@@ -33,6 +33,14 @@ export class Location {
     }
   }
 
+  clone(){
+    return new Location({
+      position: this.position.clone(),
+      yaw: this.yaw,
+      pitch: this.pitch
+    })
+  }
+
 }
 
 export interface LocationOptions {

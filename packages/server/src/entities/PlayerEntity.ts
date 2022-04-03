@@ -10,9 +10,9 @@ export class PlayerEntity extends Entity {
 
   client: Client
 
-  constructor({client, id, position, yaw, pitch, type}: PlayerEntityOptions){
-    const uuid = client.protocolClientWrapper.client.uuid
-    super({id, uuid, position, yaw, pitch, type})
+  constructor({client, id, position, yaw, pitch, type, world}: PlayerEntityOptions){
+    const uuid = client.socket.client.uuid
+    super({id, uuid, position, yaw, pitch, type, world})
     this.client = client
     this.client.playerEntity = this
     this.client.finalizeLogin()
@@ -20,7 +20,7 @@ export class PlayerEntity extends Entity {
 
   getSpawnMessage(): toClient.NamedEntitySpawnParams{
     return {
-      playerUUID: this.client.protocolClientWrapper.client.uuid,
+      playerUUID: this.client.socket.client.uuid,
       entityId: this.id,
       ...this.location.getRaw(),
     }

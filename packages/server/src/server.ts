@@ -7,6 +7,7 @@ import { Entity } from "./entities/Entity";
 import { setTimeout } from "timers/promises";
 import { PlayerEntity } from "./entities/PlayerEntity";
 import { data, version } from "./data";
+import { PCChunk } from "prismarine-chunk";
 
 export class GameServer {
 
@@ -17,10 +18,14 @@ export class GameServer {
   entities = new Map<number, Entity>()
   players = new Set<PlayerEntity>()
 
+  placeHolderChunk: PCChunk
+
   constructor(){
     this.world = new World()
+    this.placeHolderChunk = this.world.getPlaceHolderChunk()
+
     this.protocolServer = createServer({
-      'online-mode': true,
+      'online-mode': false,
       host: '0.0.0.0',
       port: 25565,
       version,
@@ -41,9 +46,10 @@ export class GameServer {
     const sheep = new Entity({
       id: this.nextId++,
       type: data.entitiesByName.sheep.id,
-      position: new Vec3(2, 65, 2),
-      yaw: 0,
+      position: new Vec3(0, 65, 10),
+      yaw: 100,
       pitch: 0,
+      world: this.world,
     })
     this.entities.set(sheep.id, sheep)
 
@@ -53,16 +59,30 @@ export class GameServer {
   async gameLoop() {
     let tickCount = 0
     while (true) {
-      tickCount++
       const start = Date.now()
 
       this.sendEntitiesPosition()
 
+      this.entities.forEach(e => {
+        e.pulsePhysic()
+      })
+
+      if (tickCount%50 == 0) {
+        this.entities.forEach(e => {
+          e.velocity.y = 0
+          e.location.position.y = 90
+        })
+      }
+
+
+
       const took = Date.now() - start
       if (took > 5) {
         console.log(`Tick ${tickCount} took ${took}`);
-
       }
+
+
+      tickCount++
 
       await setTimeout(Math.max(0, 50 - took))
     }
@@ -76,7 +96,7 @@ export class GameServer {
           return;
         }
 
-        player.client.protocolClientWrapper.entityTeleport({
+        player.client.socket.entityTeleport({
           entityId: entity.id,
           ...entity.location.position,
           yaw: entity.location.yaw,
@@ -84,7 +104,7 @@ export class GameServer {
           onGround: true
         })
 
-        player.client.protocolClientWrapper.entityHeadRotation({
+        player.client.socket.entityHeadRotation({
           entityId: entity.id,
           headYaw: entity.location.yaw
         })
@@ -111,7 +131,8 @@ export class GameServer {
       type: data.entitiesByName.player.id,
       position: spawnpoint,
       yaw: 0,
-      pitch: 0
+      pitch: 0,
+      world: this.world,
     })
 
 
@@ -136,36 +157,36 @@ export class GameServer {
 
     wrappedClient.on("chat", (data) => {
       console.log(data.message);
-      wrappedClient.chat({
-        message: JSON.stringify({text: `${rawClient.username}: ${data.message}`}),
-        sender: rawClient.uuid,
-        position: 0
+      this.players.forEach(p => {
+        p.client.socket.chat({
+          message: JSON.stringify({text: `${rawClient.username}: ${data.message}`}),
+          sender: rawClient.uuid,
+          position: 0
+        })
       })
     })
 
     console.log("get chunk");
 
-    const chunk = this.world.getPlaceHolderChunk()
-
     player.client.sendChunk({
       x: 0,
       z: 0,
-      chunk
+      chunk: this.placeHolderChunk
     })
     player.client.sendChunk({
       x: -1,
       z: 0,
-      chunk
+      chunk: this.placeHolderChunk
     })
     player.client.sendChunk({
       x: 0,
       z: -1,
-      chunk
+      chunk: this.placeHolderChunk
     })
     player.client.sendChunk({
       x: -1,
       z: -1,
-      chunk
+      chunk: this.placeHolderChunk
     })
   }
 }

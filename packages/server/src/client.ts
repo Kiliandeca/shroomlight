@@ -9,12 +9,12 @@ import { Entity } from "./entities/Entity";
 
 export class Client{
 
-  protocolClientWrapper: ServerSideClientWrapper
+  socket: ServerSideClientWrapper
 
   playerEntity: PlayerEntity;
 
   constructor(protocolClientWrapper: ServerSideClientWrapper) {
-    this.protocolClientWrapper = protocolClientWrapper
+    this.socket = protocolClientWrapper
   }
 
   finalizeLogin(){
@@ -24,20 +24,20 @@ export class Client{
   }
 
   listenPositionUpdate(){
-    this.protocolClientWrapper.on('look', (look) => this.playerEntity.updateLocation({pitch: angleToDegree(look.pitch), yaw: angleToDegree(look.yaw)}))
-    this.protocolClientWrapper.on('position', (positionMessage) => {
+    this.socket.on('look', (look) => this.playerEntity.updateLocation({pitch: angleToDegree(look.pitch), yaw: angleToDegree(look.yaw)}))
+    this.socket.on('position', (positionMessage) => {
       const position = new Vec3(positionMessage.x, positionMessage.y, positionMessage.z)
       this.playerEntity.updateLocation({position})
     })
-    this.protocolClientWrapper.on('position_look', (positionLook) => {
+    this.socket.on('position_look', (positionLook) => {
       const position = new Vec3(positionLook.x, positionLook.y, positionLook.z)
       this.playerEntity.updateLocation({position, pitch: angleToDegree(positionLook.pitch), yaw: angleToDegree(positionLook.yaw)})
     })
   }
 
   sendLogin() {
-    this.protocolClientWrapper.login({
-      entityId: this.protocolClientWrapper.client.uuid,
+    this.socket.login({
+      entityId: this.socket.client.uuid,
       isHardcore: false,
       gameMode: 0,
       previousGameMode: 2,
@@ -51,12 +51,12 @@ export class Client{
       reducedDebugInfo: false,
       enableRespawnScreen: true,
       isDebug: false,
-      isFlat: false
+      isFlat: false,
     })
   }
 
   sendChunk({x, z, chunk}: {x: number, z: number, chunk: PCChunk}) {
-    this.protocolClientWrapper.mapChunk({
+    this.socket.mapChunk({
       x,
       z,
       groundUp: true,
@@ -73,7 +73,7 @@ export class Client{
   }
 
   sendPosition(){
-    this.protocolClientWrapper.position({
+    this.socket.position({
       ...this.playerEntity.location.position,
       yaw: this.playerEntity.location.yaw,
       pitch: this.playerEntity.location.pitch,
@@ -84,20 +84,20 @@ export class Client{
   spawnEntity(entity: Entity){
     const spawnMessage = entity.getSpawnMessage()
     if (isSpawnEntityLivingParams(spawnMessage)) {
-      this.protocolClientWrapper.spawnEntityLiving(spawnMessage)
+      this.socket.spawnEntityLiving(spawnMessage)
     } else if(isNamedEntitySpawnParams(spawnMessage)) {
       // Entity is a player
-      this.protocolClientWrapper.playerInfo({
+      this.socket.playerInfo({
         action: 0,
         data: [{
           UUID: entity.uuid,
-          name: 'test',
+          name: (entity as PlayerEntity).client.socket.client.username,
           properties:[],
           gamemode: 1,
           ping: 1,
         }]
       })
-      this.protocolClientWrapper.namedEntitySpawn(spawnMessage)
+      this.socket.namedEntitySpawn(spawnMessage)
     }
   }
 }
