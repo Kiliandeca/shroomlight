@@ -6,3 +6,5 @@ export function angleToDegree(angle) {
     return result - 256;
   return result;
 }
+
+export type ChunkKey = `${number},${number}`

@@ -74,7 +74,9 @@ export class GameServer {
         })
       }
 
-
+      this.players.forEach(p => {
+        p.client.pulse()
+      })
 
       const took = Date.now() - start
       if (took > 5) {
@@ -123,7 +125,7 @@ export class GameServer {
     })
 
     const wrappedClient = new ServerSideClientWrapper(rawClient)
-    const client = new Client(wrappedClient);
+    const client = new Client(wrappedClient, this.world);
     const spawnpoint = new Vec3(0, 65, 0)
     const player = new PlayerEntity({
       client,
