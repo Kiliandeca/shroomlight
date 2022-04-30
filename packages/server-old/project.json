@@ -1,6 +1,6 @@
 {
-  "root": "packages/server",
-  "sourceRoot": "packages/server/src",
+  "root": "packages/server-old",
+  "sourceRoot": "packages/server-old/src",
   "projectType": "application",
   "targets": {
     "build": {
@@ -13,9 +13,9 @@
         }
       ],
       "options": {
-        "outputPath": "dist/packages/server",
-        "main": "packages/server/src/main.ts",
-        "tsConfig": "packages/server/tsconfig.app.json",
+        "outputPath": "dist/packages/server-old",
+        "main": "packages/server-old/src/main.ts",
+        "tsConfig": "packages/server-old/tsconfig.app.json",
         "assets": []
       }
     },
@@ -29,14 +29,14 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["packages/server/**/*.ts"]
+        "lintFilePatterns": ["packages/server-old/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/packages/server"],
+      "outputs": ["coverage/packages/server-old"],
       "options": {
-        "jestConfig": "packages/server/jest.config.js",
+        "jestConfig": "packages/server-old/jest.config.js",
         "passWithNoTests": true
       }
     }

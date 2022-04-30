@@ -22,6 +22,6 @@
   },
   "exclude": ["node_modules", "tmp"],
   "ts-node": {
-    "require": ["tsconfig-paths/register"] // https://github.com/TypeStrong/ts-node#paths-and-baseurl
+    "require": ["tsconfig-paths/register"]
   }
 }

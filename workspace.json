@@ -2,6 +2,6 @@
   "version": 2,
   "projects": {
     "minecraft-protocol-wrapper": "packages/minecraft-protocol-wrapper",
-    "server": "packages/server"
+    "server-old": "packages/server-old"
   }
 }
