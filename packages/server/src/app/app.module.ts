@@ -1,11 +1,23 @@
 import { Module } from '@nestjs/common';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { KeepAliveController } from './connexion/keep-alive.controller';
+import { LoginController } from './connexion/login.controller';
+import { WorldService } from './world.service';
+import { PlayersService } from './players/players.service';
+import { EntitiesService } from './entities/entities.service';
+import { MovementController } from './players/movement.controller';
+import { GameService } from './game.service';
+import { PhysicsService } from './physics.service';
 
 @Module({
   imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [KeepAliveController, LoginController, MovementController],
+  providers: [
+    WorldService,
+    PlayersService,
+    EntitiesService,
+    GameService,
+    PhysicsService,
+  ],
 })
 export class AppModule {}
