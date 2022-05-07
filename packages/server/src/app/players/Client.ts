@@ -70,18 +70,6 @@ export class Client {
       this.socket.spawnEntityLiving(spawnMessage);
     } else if (isNamedEntitySpawnParams(spawnMessage)) {
       // Entity is a player
-      this.socket.playerInfo({
-        action: 0,
-        data: [
-          {
-            UUID: entity.uuid,
-            name: (entity as PlayerEntity).client.socket.client.username,
-            properties: [],
-            gamemode: 1,
-            ping: 1,
-          },
-        ],
-      });
       this.socket.namedEntitySpawn(spawnMessage);
     }
   }

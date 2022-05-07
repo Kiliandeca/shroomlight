@@ -60,12 +60,12 @@ export class GameService {
       this.physicsService.pulsePhysics(e)
     })
 
-    if (this.tickCount % 50 == 0) {
+/*     if (this.tickCount % 50 == 0) {
       this.entitiesService.entities.forEach((e) => {
         e.velocity.y = 0;
         e.location.position.y = 90;
       });
-    }
+    } */
   }
 
   sendEntitiesPosition() {

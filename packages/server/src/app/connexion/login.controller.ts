@@ -37,6 +37,11 @@ export class LoginController {
       if (e.id == player.id) return;
       player.client.spawnEntity(e);
     });
+
+    this.playersService.players.forEach(p => {
+      if (p.id == player.id) return;
+      p.client.spawnEntity(player)
+    })
     
   }
 

@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Vec3 } from 'vec3';
-import { data } from '../utils/data';
 import { EntitiesService } from '../entities/entities.service';
 import { PlayerEntity } from '../entities/PlayerEntity';
 import { WorldService } from '../world.service';
 import { Client } from './Client';
+import { PLAYER_INFO_ACTION } from '@shroomlight/minecraft-protocol-wrapper';
 
 @Injectable()
 export class PlayersService {
@@ -20,12 +20,35 @@ export class PlayersService {
 
     this.players.set(player.uuid, player);
     socket.client.on('end', () => {
-      this.entitiesService.delete(player);
-      this.players.delete(player.uuid);
-      this.broadcastMessage({
-        message: `§e${client.username} left the game`
-      })
+      this.logout(client)
     });
+
+    this.players.forEach(p => {
+      // Send every playrs infos to the new players
+      client.socket.playerInfo({
+        action: PLAYER_INFO_ACTION.ADD_PLAYER,
+        data: [{
+          UUID: p.uuid,
+          name: p.client.username,
+          properties: [],
+          gamemode: 1,
+          ping: 1,
+        }]
+      })
+
+      // Send the new player info to every players exept itself
+      if (p === player) return;
+      p.client.socket.playerInfo({
+        action: PLAYER_INFO_ACTION.ADD_PLAYER,
+        data: [{
+          UUID: player.uuid,
+          name: player.client.username,
+          properties: [],
+          gamemode: 1,
+          ping: 1,
+        }]
+      })
+    })
 
     this.broadcastMessage({
       message: `§e${client.username} joined the game`
@@ -35,6 +58,24 @@ export class PlayersService {
     client.streamChunks()
 
     return player
+  }
+
+  logout(client: Client){
+    this.entitiesService.delete(client.playerEntity);
+    this.players.delete(client.playerEntity.uuid);
+
+    this.players.forEach(p => {
+      p.client.socket.playerInfo({
+        action: PLAYER_INFO_ACTION.REMOVE_PLAYER,
+        data: [{
+          UUID: client.playerEntity.uuid
+        }]
+      })
+    })
+
+    this.broadcastMessage({
+      message: `§e${client.username} left the game`
+    })
   }
 
   getPlayerByUuid(uuid: string) {
