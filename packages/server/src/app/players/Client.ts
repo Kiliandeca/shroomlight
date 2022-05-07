@@ -16,10 +16,13 @@ export class Client {
   previousChunk = { x: null, z: null };
   knownChunks = new Set<ChunkKey>();
 
-  constructor(protocolClientWrapper: ServerSideClientWrapper, world: WorldService) {
+  username: string;
+
+  constructor(protocolClientWrapper: ServerSideClientWrapper, username: string, world: WorldService) { // todo remove worldservice reference here
     this.socket = protocolClientWrapper;
     (this.socket as ServerSideClientWrapper & {ctx: Client}).ctx = this; // Hacky thing to pass the Client as context in transporter
     this.world = world;
+    this.username = username
   }
 
   sendPosition() {

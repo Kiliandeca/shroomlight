@@ -9,8 +9,6 @@ import { PlayersService } from './players.service';
 
 @Controller()
 export class MovementController {
-  constructor(private playersService: PlayersService) {}
-
   @EventPattern('position')
   position(@Payload() packet: toServer.PositionParams, @Ctx() player: Client) {
     const position = new Vec3(packet.x, packet.y, packet.z)
@@ -34,5 +32,4 @@ export class MovementController {
       yaw: angleToDegree(packet.yaw),
     })
   }
-
 }

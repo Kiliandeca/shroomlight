@@ -14,15 +14,22 @@ export class PlayersService {
 
   constructor(private worlService: WorldService, private entitiesService: EntitiesService) {}
 
-  login(socket){
-    const client = new Client(socket, this.worlService);
+  login(socket, username){
+    const client = new Client(socket, username, this.worlService);
     const player = this.entitiesService.createPlayer(client, this.spawnPoint);
 
     this.players.set(player.uuid, player);
-    socket.on('end', () => {
+    socket.client.on('end', () => {
       this.entitiesService.delete(player);
       this.players.delete(player.uuid);
+      this.broadcastMessage({
+        message: `§e${client.username} left the game`
+      })
     });
+
+    this.broadcastMessage({
+      message: `§e${client.username} joined the game`
+    })
 
     client.sendPosition()
     client.streamChunks()
@@ -35,6 +42,14 @@ export class PlayersService {
       return this.players.get(uuid);
     }
     return false
+  }
+
+  broadcastMessage({message, position=0, sender='0'}: {message: any, position?: 0 | 1 | 2, sender?: string }) {
+    this.players.forEach(p => p.client.socket.chat({
+      sender,
+      message: JSON.stringify(message),
+      position,
+    }))
   }
 
 }

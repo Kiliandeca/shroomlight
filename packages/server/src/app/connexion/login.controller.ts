@@ -3,7 +3,6 @@ import { Ctx, EventPattern, Payload } from '@nestjs/microservices';
 import { ServerSideClientWrapper, toServer } from '@shroomlight/minecraft-protocol-wrapper';
 import { data } from '../utils/data';
 import { PlayersService } from '../players/players.service';
-import { WorldService } from '../world.service';
 import { EntitiesService } from '../entities/entities.service';
 
 @Controller()
@@ -32,7 +31,7 @@ export class LoginController {
       isFlat: false,
     })
 
-    const player = this.playersService.login(socket)
+    const player = this.playersService.login(socket, packet.username)
 
     this.entitiesService.entities.forEach((e) => {
       if (e.id == player.id) return;

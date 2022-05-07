@@ -8,10 +8,16 @@ import { EntitiesService } from './entities/entities.service';
 import { MovementController } from './players/movement.controller';
 import { GameService } from './game.service';
 import { PhysicsService } from './physics.service';
+import { ChatController } from './chat.controller';
 
 @Module({
   imports: [],
-  controllers: [KeepAliveController, LoginController, MovementController],
+  controllers: [
+    KeepAliveController,
+    LoginController,
+    MovementController,
+    ChatController,
+  ],
   providers: [
     WorldService,
     PlayersService,
