@@ -4,25 +4,25 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputFile}"],
-      "dependsOn": [
-        {
-          "target": "build",
-          "projects": "dependencies"
-        }
-      ],
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/packages/server",
         "main": "packages/server/src/main.ts",
-        "tsConfig": "packages/server/tsconfig.app.json",
-        "assets": []
+        "tsConfig": "packages/server/tsconfig.app.json"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false
+        }
       }
     },
     "serve": {
-      "executor": "@nrwl/workspace:run-script",
+      "executor": "@nrwl/node:node",
       "options": {
-        "script": "serve"
+        "buildTarget": "server:build"
       }
     },
     "lint": {
@@ -36,7 +36,7 @@
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/packages/server"],
       "options": {
-        "jestConfig": "packages/server/jest.config.js",
+        "jestConfig": "packages/server/jest.config.ts",
         "passWithNoTests": true
       }
     }

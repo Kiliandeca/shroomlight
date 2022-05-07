@@ -1,3 +1,29 @@
-import { GameServer } from './server'
+/**
+ * This is not a production server yet!
+ * This is only a minimal backend to get started.
+ */
 
-new GameServer()
+import { Logger } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+
+import { AppModule } from './app/app.module';
+import { MinecraftProtocolServer } from './app/mcProtocolTransporter/McProtocolServer';
+
+async function bootstrap() {
+  const port = Number(process.env.PORT) || 25565;
+  const version = process.env.VERSION || '1.16.5';
+
+  const app = await NestFactory.createMicroservice(
+    AppModule,
+    {
+      strategy: new MinecraftProtocolServer({port, version})
+    }
+  )
+
+  await app.listen();
+  Logger.log(
+    `🚀 Application is running on: http://localhost:${port}/`
+  );
+}
+
+bootstrap();
