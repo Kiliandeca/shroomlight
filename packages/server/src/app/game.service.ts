@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { Histogram } from '@opentelemetry/api-metrics';
+import { MetricService } from 'nestjs-otel';
 import { setTimeout } from 'timers/promises';
 import { Vec3 } from 'vec3';
 import { EntitiesService } from './entities/entities.service';
@@ -9,7 +11,12 @@ import { data } from './utils/data';
 
 @Injectable()
 export class GameService {
-  constructor(private entitiesService: EntitiesService, private playersServices: PlayersService, private physicsService: PhysicsService) {}
+
+  tickMetricHistogram: Histogram
+
+  constructor(private entitiesService: EntitiesService, private playersServices: PlayersService, private physicsService: PhysicsService, private metricsService: MetricService) {
+    this.tickMetricHistogram = this.metricsService.getHistogram('tick_time', { boundaries: [0, 5, 10 , 15, 20, 25, 30, 35, 40, 50,] }) // Todo: find out why boundaries doesn't work and otel use default bucket
+  }
 
   tickCount = 0;
 
@@ -37,6 +44,7 @@ export class GameService {
       this.sendEntitiesPosition()
 
       const took = Date.now() - start;
+      this.tickMetricHistogram.record(took)
       if (took > 5) {
         console.log(`Tick ${this.tickCount} took ${took}`);
       }

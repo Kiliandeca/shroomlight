@@ -9,9 +9,10 @@ import { MovementController } from './players/movement.controller';
 import { GameService } from './game.service';
 import { PhysicsService } from './physics.service';
 import { ChatController } from './chat.controller';
+import { OpenTelemetryModule } from 'nestjs-otel';
 
 @Module({
-  imports: [],
+  imports: [OpenTelemetryModule.forRoot()],
   controllers: [
     KeepAliveController,
     LoginController,

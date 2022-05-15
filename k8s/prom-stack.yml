@@ -1,0 +1,7 @@
+prometheus:
+  prometheusSpec:
+    additionalScrapeConfigs:
+    - job_name: host-minecraft
+      scrape_interval: 1s
+      static_configs:
+      - targets: ['host.minikube.internal:8080']

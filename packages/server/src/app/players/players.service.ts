@@ -5,6 +5,8 @@ import { PlayerEntity } from '../entities/PlayerEntity';
 import { WorldService } from '../world.service';
 import { Client } from './Client';
 import { PLAYER_INFO_ACTION } from '@shroomlight/minecraft-protocol-wrapper';
+import { UpDownCounter } from '@opentelemetry/api-metrics';
+import { MetricService } from 'nestjs-otel';
 
 @Injectable()
 export class PlayersService {
@@ -12,7 +14,11 @@ export class PlayersService {
   spawnPoint = new Vec3(0, 65, 0);
   players = new Map<string, PlayerEntity>();
 
-  constructor(private worlService: WorldService, private entitiesService: EntitiesService) {}
+  playersMetricGauge: UpDownCounter;
+
+  constructor(private worlService: WorldService, private entitiesService: EntitiesService, private metricsService: MetricService) {
+    this.playersMetricGauge = this.metricsService.getUpDownCounter('online_players')
+  }
 
   login(socket, username){
     const client = new Client(socket, username, this.worlService);
@@ -22,6 +28,7 @@ export class PlayersService {
     socket.client.on('end', () => {
       this.logout(client)
     });
+    this.playersMetricGauge.add(1)
 
     this.players.forEach(p => {
       // Send every playrs infos to the new players
@@ -76,6 +83,7 @@ export class PlayersService {
     this.broadcastMessage({
       message: `§e${client.username} left the game`
     })
+    this.playersMetricGauge.add(-1)
   }
 
   getPlayerByUuid(uuid: string) {
