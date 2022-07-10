@@ -7,6 +7,7 @@ import { Client } from './Client';
 import { PLAYER_INFO_ACTION } from '@shroomlight/minecraft-protocol-wrapper';
 import { UpDownCounter } from '@opentelemetry/api-metrics';
 import { MetricService } from 'nestjs-otel';
+import { PlayerStorageService } from '../storage/player-storage.service';
 
 @Injectable()
 export class PlayersService {
@@ -16,13 +17,23 @@ export class PlayersService {
 
   playersMetricGauge: UpDownCounter;
 
-  constructor(private worlService: WorldService, private entitiesService: EntitiesService, private metricsService: MetricService) {
+  constructor(private worlService: WorldService, private entitiesService: EntitiesService, private metricsService: MetricService, private playerStorageService: PlayerStorageService) {
     this.playersMetricGauge = this.metricsService.getUpDownCounter('online_players')
   }
 
-  login(socket, username){
+  async login(socket, username){
     const client = new Client(socket, username, this.worlService);
-    const player = this.entitiesService.createPlayer(client, this.spawnPoint);
+
+    const playerData = await this.playerStorageService.read(socket.client.uuid)
+    const spawnPosition = playerData ? playerData.location.position : this.spawnPoint
+
+    const player = this.entitiesService.createPlayer(client, spawnPosition);
+
+    if(playerData){
+      player.location.pitch = playerData.location.pitch;
+      player.location.yaw = playerData.location.yaw;
+      player.velocity = playerData.velocity;
+    }    
 
     this.players.set(player.uuid, player);
     socket.client.on('end', () => {
@@ -31,7 +42,7 @@ export class PlayersService {
     this.playersMetricGauge.add(1)
 
     this.players.forEach(p => {
-      // Send every playrs infos to the new players
+      // Send every players infos to the new players
       client.socket.playerInfo({
         action: PLAYER_INFO_ACTION.ADD_PLAYER,
         data: [{
@@ -83,6 +94,7 @@ export class PlayersService {
     this.broadcastMessage({
       message: `§e${client.username} left the game`
     })
+    this.playerStorageService.save(client.playerEntity)
     this.playersMetricGauge.add(-1)
   }
 
@@ -91,6 +103,10 @@ export class PlayersService {
       return this.players.get(uuid);
     }
     return false
+  }
+
+  saveAllPlayers(){
+    return Array.from(this.players).map(([, player]) => this.playerStorageService.save(player))
   }
 
   broadcastMessage({message, position=0, sender='0'}: {message: any, position?: 0 | 1 | 2, sender?: string }) {

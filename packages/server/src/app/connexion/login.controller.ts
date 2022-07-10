@@ -11,7 +11,7 @@ export class LoginController {
   constructor(private entitiesService: EntitiesService, private playersService: PlayersService) {}
 
   @EventPattern('login_start')
-  echo(@Payload() packet: toServer.LoginStartParams, @Ctx() socket: ServerSideClientWrapper) {
+  async login(@Payload() packet: toServer.LoginStartParams, @Ctx() socket: ServerSideClientWrapper) {
     console.log(packet);
     socket.login({
       entityId: socket.client.uuid,
@@ -31,7 +31,7 @@ export class LoginController {
       isFlat: false,
     })
 
-    const player = this.playersService.login(socket, packet.username)
+    const player = await this.playersService.login(socket, packet.username)
 
     this.entitiesService.entities.forEach((e) => {
       if (e.id == player.id) return;

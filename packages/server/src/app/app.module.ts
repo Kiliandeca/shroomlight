@@ -10,6 +10,7 @@ import { GameService } from './game.service';
 import { PhysicsService } from './physics.service';
 import { ChatController } from './chat.controller';
 import { OpenTelemetryModule } from 'nestjs-otel';
+import { PlayerStorageService } from './storage/player-storage.service';
 
 @Module({
   imports: [OpenTelemetryModule.forRoot()],
@@ -25,6 +26,7 @@ import { OpenTelemetryModule } from 'nestjs-otel';
     EntitiesService,
     GameService,
     PhysicsService,
+    PlayerStorageService,
   ],
 })
 export class AppModule {}

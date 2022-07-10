@@ -16,6 +16,9 @@ I had a hard time using the minecraft-protocol lib without typing so I used the 
 
 A `docker-compose` with Bungeecord and a plugin to automaticly reconnect. This is usefull to improve developer experience when the dev server restart.
 
+- `nx run dev-proxy:download`: Download the AutoReconnect plugin
+- `nx run dev-proxy:serve`: Launch Bungeecord. (localhost:25577)
+
 ### screenshots
 
 The place where I share some progress.

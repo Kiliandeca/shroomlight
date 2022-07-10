@@ -15,7 +15,7 @@ export class GameService {
   tickMetricHistogram: Histogram
 
   constructor(private entitiesService: EntitiesService, private playersServices: PlayersService, private physicsService: PhysicsService, private metricsService: MetricService) {
-    this.tickMetricHistogram = this.metricsService.getHistogram('tick_time', { boundaries: [0, 5, 10 , 15, 20, 25, 30, 35, 40, 50,] }) // Todo: find out why boundaries doesn't work and otel use default bucket
+    this.tickMetricHistogram = this.metricsService.getHistogram('tick_time', { boundaries: [0, 5, 10 , 15, 20, 25, 30, 35, 40, 50, Infinity] }) // Todo: find out why boundaries doesn't work and otel use default bucket
   }
 
   tickCount = 0;
@@ -68,12 +68,13 @@ export class GameService {
       this.physicsService.pulsePhysics(e)
     })
 
-/*     if (this.tickCount % 50 == 0) {
-      this.entitiesService.entities.forEach((e) => {
+    if (this.tickCount % 50 == 0) {
+      this.playersServices.saveAllPlayers()
+      /* this.entitiesService.entities.forEach((e) => {
         e.velocity.y = 0;
         e.location.position.y = 90;
-      });
-    } */
+      });*/
+    } 
   }
 
   sendEntitiesPosition() {
