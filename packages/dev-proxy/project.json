@@ -1,0 +1,29 @@
+{
+  "root": "packages/dev-proxy",
+  "projectType": "application",
+  "sourceRoot": "packages/dev-proxy",
+  "targets": {
+    "download": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "curl https://cdn.spiget.org/file/spiget-resources/62729.jar -o plugins/AutoReconnect.jar"
+        ],
+        "cwd": "packages/dev-proxy",
+        "__unparsed__": [] // https://github.com/nrwl/nx/issues/10941
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "docker-compose down && docker-compose up"
+        ],
+        "cwd": "packages/dev-proxy",
+        "dependsOn": ["download"],
+        "__unparsed__": [] // https://github.com/nrwl/nx/issues/10941
+      }
+    }
+  },
+  "tags": []
+}

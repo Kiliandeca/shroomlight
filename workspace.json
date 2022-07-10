@@ -1,6 +1,7 @@
 {
   "version": 2,
   "projects": {
+    "dev-proxy": "packages/dev-proxy",
     "minecraft-protocol-wrapper": "packages/minecraft-protocol-wrapper",
     "server": "packages/server",
     "server-old": "packages/server-old"

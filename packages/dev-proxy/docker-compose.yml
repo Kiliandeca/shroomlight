@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  proxy:
+    image: itzg/bungeecord
+    ports:
+      - "25577:25577"
+    volumes:
+      - "proxy:/server"
+      - ${PWD}/plugins:/plugins
+      - ${PWD}/bungeecord.yml:/config/config.yml
+    restart: always
+    network_mode: host
+volumes:
+  proxy:

@@ -12,6 +12,10 @@ A Nest.js app with the game logic. It uses a custom transporter strategy to inte
 
 I had a hard time using the minecraft-protocol lib without typing so I used the [same source](https://github.com/PrismarineJS/minecraft-data/blob/master/data/pc/1.16/protocol.json) they use to dynamically generate the protocol to generate the typings. Also added a wrapper for my need.
 
+### packages/dev-proxy
+
+A `docker-compose` with Bungeecord and a plugin to automaticly reconnect. This is usefull to improve developer experience when the dev server restart.
+
 ### screenshots
 
 The place where I share some progress.
