@@ -1,0 +1,23 @@
+{
+  "root": "packages/protodef-syntax-tree",
+  "sourceRoot": "packages/protodef-syntax-tree/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/protodef-syntax-tree/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/protodef-syntax-tree"],
+      "options": {
+        "jestConfig": "packages/protodef-syntax-tree/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

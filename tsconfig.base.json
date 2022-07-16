@@ -17,6 +17,9 @@
     "paths": {
       "@shroomlight/minecraft-protocol-wrapper": [
         "packages/minecraft-protocol-wrapper/src/index.ts"
+      ],
+      "@shroomlight/protodef-syntax-tree": [
+        "packages/protodef-syntax-tree/src/index.ts"
       ]
     }
   },

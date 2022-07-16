@@ -3,6 +3,7 @@
   "projects": {
     "dev-proxy": "packages/dev-proxy",
     "minecraft-protocol-wrapper": "packages/minecraft-protocol-wrapper",
+    "protodef-syntax-tree": "packages/protodef-syntax-tree",
     "server": "packages/server",
     "server-old": "packages/server-old"
   }
